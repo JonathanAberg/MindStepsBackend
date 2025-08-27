@@ -1,7 +1,7 @@
 // src/routes.ts
 import { Router } from "express";
 import { createSession, listSessions } from "./controllers/session.js";
-
+import { getQuestionByCategory } from "./controllers/question.js";
 const router = Router();
 
 
@@ -14,6 +14,7 @@ router.get("/health", (req,res)=> {
    res.json({ ok: true, status: "up" });
 });
 
+router.get("/questions/:category", getQuestionByCategory);  
 
 router.get("/session", listSessions);
 router.post("/session", createSession);
