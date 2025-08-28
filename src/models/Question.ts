@@ -1,9 +1,9 @@
 import mongoose from "mongoose";
 
 const questionSchema = new mongoose.Schema({
-    id: { type: Number, required: true },
-    category: {type: String},
-  text: { type: String, required: true },
+    id: { type: Number, required: true, index: true },
+    category: {type: String, required: true, trim: true, lowercase: true index: true},
+  text: { type: String, required: true, trim: true },
  
 });
 
