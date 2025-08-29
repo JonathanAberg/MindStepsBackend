@@ -26,4 +26,5 @@ router.get("/sessions/:id", getSessionById);
 router.put("/sessions/:id", updateSession);
 router.delete("/sessions/:id", deleteSession);
 
+
 export default router;
