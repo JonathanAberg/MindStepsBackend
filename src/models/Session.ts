@@ -1,22 +1,23 @@
 import mongoose from "mongoose";
 
-// Simple schema for a session (walking session)
 const SessionSchema = new mongoose.Schema(
   {
+    deviceId: { type: String, required: true, index: true },
     steps: { type: Number, required: true, min: 0 },
     answer: { type: String, required: true, enum: ["Bra", "Okej", "Dåligt"] },
+    time: { type: Number, required: true, min: 0 },
     date: { type: Date, default: Date.now },
-    deviceId: { type: String, required: true },
   },
   { versionKey: false }
 );
 
 export type SessionDoc = {
   _id: mongoose.Types.ObjectId;
+  deviceId: string;
   steps: number;
   answer: "Bra" | "Okej" | "Dåligt";
+  time: number;
   date: Date;
-  deviceId: string;
 };
 
 export const Session = mongoose.model<SessionDoc>("sessions", SessionSchema);
