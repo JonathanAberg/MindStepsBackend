@@ -12,7 +12,9 @@ async function startServer() {
     if (!connectionString) {
       throw new Error("MONGODB_URI is not defined in environment variables");
     }
-    await mongoose.connect(process.env.MONGODB_URI || "");
+    await mongoose.connect(process.env.MONGODB_URI || "", {
+      dbName: "MindSteps",
+    });
     console.log("✅ Connected to MongoDB Atlas");
 
     app.listen(port, () => {

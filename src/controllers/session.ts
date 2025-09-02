@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { Session } from "../models/Session.js";
 import { validateSessionInput } from "../utils/validateBody.js";
+
 export async function createSession(req: Request, res: Response) {
   console.log("[createSession] Request body:", req.body);
   const { steps, answer, date, deviceId, time } = req.body || {};
@@ -11,6 +12,11 @@ export async function createSession(req: Request, res: Response) {
     time,
     deviceId,
   });
+
+  if (validationError?.error) {
+    console.error("[createSession] Validation error:", validationError.error);
+    return res.status(400).json({ error: validationError.error });
+  }
   try {
     const doc = await Session.create({ steps, answer, date, deviceId });
     console.log("[createSession] Session created:", doc);
@@ -29,7 +35,7 @@ export async function listSessions(req: Request, res: Response) {
     console.error("[listSessions] Invalid or missing deviceId:", deviceId);
     return res.status(400).json({ error: "Invalid or missing deviceId" });
   }
-
+  console.log(typeof deviceId, deviceId);
   try {
     const docs = await Session.find({ deviceId }).sort({ date: -1 }).lean();
     console.log("[listSessions] Sessions fetched:", docs);
