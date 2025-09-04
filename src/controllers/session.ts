@@ -3,27 +3,38 @@ import { Session } from "../models/Session.js";
 import { validateSessionInput } from "../utils/validateBody.js";
 
 export async function createSession(req: Request, res: Response) {
-  console.log("[createSession] Request body:", req.body);
-  const { steps, answer, date, deviceId, time } = req.body || {};
+  console.log("[createSession] Incoming body:", req.body);
+  const { steps, answer, deviceId, time, date } = req.body || {};
 
-  const validationError = validateSessionInput({
-    steps,
-    answer,
-    time,
-    deviceId,
-  });
-
+  const validationError = validateSessionInput({ steps, answer, time, deviceId });
   if (validationError?.error) {
-    console.error("[createSession] Validation error:", validationError.error);
+    console.warn("[createSession] Validation failed:", validationError.error);
     return res.status(400).json({ error: validationError.error });
   }
+
   try {
-    const doc = await Session.create({ steps, answer, date, deviceId });
-    console.log("[createSession] Session created:", doc);
-    res.status(201).json(doc);
-  } catch (error) {
-    console.error("[createSession] Error creating session:", error);
-    res.status(500).json({ error: "Internal server error" });
+    const payload = {
+      steps,
+      answer,
+      deviceId,
+      time,
+      date: date ? new Date(date) : new Date(),
+    };
+    console.log("[createSession] Creating with payload:", payload);
+    const doc = await Session.create(payload);
+    console.log("[createSession] Created session _id=", doc._id);
+    return res.status(201).json(doc);
+  } catch (err: any) {
+    if (err?.code === 11000) {
+      console.error("[createSession] Duplicate key error:", err?.keyValue);
+      return res.status(409).json({ error: "Duplicate key (remove unique index on deviceId if unintended)", key: err?.keyValue });
+    }
+    if (err?.name === "ValidationError") {
+      console.error("[createSession] Mongoose validation error:", err?.errors);
+      return res.status(400).json({ error: "Schema validation failed", details: Object.keys(err.errors || {}) });
+    }
+    console.error("[createSession] Unhandled error:", err);
+    return res.status(500).json({ error: "Internal server error" });
   }
 }
 
@@ -65,28 +76,29 @@ export async function getSessionById(req: Request, res: Response) {
 
 export async function updateSession(req: Request, res: Response) {
   const { id } = req.params;
-  const { steps, answer, date } = req.body;
-  console.log(
-    "[updateSession] Updating session with ID:",
-    id,
-    "Data:",
-    req.body
-  );
+  const { steps, answer, date, time } = req.body;
+  console.log("[updateSession] Update request id=", id, "body=", req.body);
+
+  const update: any = {};
+  if (typeof steps === "number") update.steps = steps;
+  if (typeof time === "number") update.time = time;
+  if (answer) update.answer = answer;
+  if (date) update.date = new Date(date);
+
   try {
-    const updatedSession = await Session.findByIdAndUpdate(
-      id,
-      { steps, answer, date },
-      { new: true, runValidators: true }
-    ).lean();
+    const updatedSession = await Session.findByIdAndUpdate(id, update, {
+      new: true,
+      runValidators: true,
+    }).lean();
     if (!updatedSession) {
-      console.warn("[updateSession] Session not found:", id);
+      console.warn("[updateSession] Not found id=", id);
       return res.status(404).json({ error: "Session not found" });
     }
-    console.log("[updateSession] Session updated:", updatedSession);
-    res.json(updatedSession);
-  } catch (error) {
-    console.error("[updateSession] Error updating session:", error);
-    res.status(500).json({ error: "Internal server error" });
+    console.log("[updateSession] Updated _id=", updatedSession._id);
+    return res.json(updatedSession);
+  } catch (err) {
+    console.error("[updateSession] Error:", err);
+    return res.status(500).json({ error: "Internal server error" });
   }
 }
 

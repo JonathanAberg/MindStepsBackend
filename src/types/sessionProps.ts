@@ -1,6 +1,6 @@
 export type CreateSession = {
-  time: string;
+  time: number; // seconds (numeric)
   steps: number;
-  answer: string;
+  answer: string; // "Bra" | "Okej" | "Dåligt"
   deviceId: string;
 };
