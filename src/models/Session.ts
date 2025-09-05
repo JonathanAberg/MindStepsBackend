@@ -3,10 +3,10 @@ import mongoose from "mongoose";
 const SessionSchema = new mongoose.Schema(
   {
     deviceId: { type: String, required: true, index: true },
-    steps: { type: Number, required: true, min: 0 },
-    answer: { type: String, required: true, enum: ["Bra", "Okej", "Dåligt"] },
-    reflection: {type: String, required: false},
-    time: { type: Number, required: true, min: 0 },
+    steps: { type: Number, default: 0, min: 0 },
+    answer: { type: String, enum: ["Bra", "Okej", "Dåligt"], default: "Okej" },
+    reflection: {type: String },
+    time: { type: Number, default: 0, min: 0 },
     date: { type: Date, default: Date.now },
   },
   { versionKey: false }

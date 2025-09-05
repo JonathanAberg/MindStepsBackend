@@ -21,7 +21,8 @@ router.get("/health", (req, res) => {
 
 // Add routes for session management
 router.get("/sessions", listSessions);
-router.post("/sessions/start", createSession);
+router.post("/sessions", createSession);
+router.post("/sessions/start", createSession); //Kvar som alias för att inte skapa problem under dev
 router.get("/sessions/:id", getSessionById);
 router.put("/sessions/:id", updateSession);
 router.delete("/sessions/:id", deleteSession);
