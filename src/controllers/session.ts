@@ -4,7 +4,7 @@ import { validateSessionInput } from "../utils/validateBody.js";
 
 export async function createSession(req: Request, res: Response) {
   console.log("[createSession] Incoming body:", req.body);
-  const { steps, answer, deviceId, time, date } = req.body || {};
+  const { steps, answer, reflection, deviceId, time, date } = req.body || {};
 
   const validationError = validateSessionInput({ steps, answer, time, deviceId });
   if (validationError?.error) {
@@ -16,6 +16,7 @@ export async function createSession(req: Request, res: Response) {
     const payload = {
       steps,
       answer,
+      reflection,
       deviceId,
       time,
       date: date ? new Date(date) : new Date(),
