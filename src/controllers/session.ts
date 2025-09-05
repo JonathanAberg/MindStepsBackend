@@ -6,7 +6,7 @@ export async function createSession(req: Request, res: Response) {
   console.log("[createSession] Incoming body:", req.body);
   const { steps, answer, reflection, deviceId, time, date } = req.body || {};
 
-  const validationError = validateSessionInput({ steps, answer, time, deviceId });
+  const validationError = validateSessionInput({ steps, answer, reflection, time, deviceId });
   if (validationError?.error) {
     console.warn("[createSession] Validation failed:", validationError.error);
     return res.status(400).json({ error: validationError.error });
@@ -77,13 +77,14 @@ export async function getSessionById(req: Request, res: Response) {
 
 export async function updateSession(req: Request, res: Response) {
   const { id } = req.params;
-  const { steps, answer, date, time } = req.body;
+  const { steps, answer, reflection, date, time } = req.body;
   console.log("[updateSession] Update request id=", id, "body=", req.body);
 
   const update: any = {};
   if (typeof steps === "number") update.steps = steps;
   if (typeof time === "number") update.time = time;
   if (answer) update.answer = answer;
+  if (reflection !== undefined) update.reflection = reflection;
   if (date) update.date = new Date(date);
 
   try {
